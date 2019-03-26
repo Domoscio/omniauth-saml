@@ -33,6 +33,12 @@ module OmniAuth
 
       def request_phase
         authn_request = OneLogin::RubySaml::Authrequest.new
+        
+        follow = request.params['follow']
+        json = {"follow_url": follow}
+        options = JSON.generate(json)
+        sql = "INSERT INTO omniauth_saml_authn_requests (uuid, options) VALUES ('#{authn_request.uuid}', '#{options}')"
+        ActiveRecord::Base.connection.execute(sql)
 
         with_settings do |settings|
           redirect(authn_request.create(settings, additional_params_for_authn_request))
